@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DREAMCON — ข้อถกเถียง</title>
+<link rel="icon" href="data:,">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai+Looped:wght@300;400;500;600&family=IBM+Plex+Sans+Thai:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/tokens.css?v=2">
+<link rel="stylesheet" href="css/base.css?v=2">
+<link rel="stylesheet" href="css/nav.css?v=2">
+<link rel="stylesheet" href="css/dashboard.css?v=6">
+<style>
+  html, body { height: 100%; overflow: hidden; }
+  body { display: flex; flex-direction: column; }
+  #site-nav { flex-shrink: 0; }
+  #app { flex: 1; overflow: hidden; }
+</style>
+</head>
+<body data-page="dashboard">
+
+<div id="site-nav"></div>
+
+<div id="app">
+  <!-- COMBINED SIDEBAR -->
+  <nav id="sidebar" class="sidebar">
+    <div class="sidebar-header-bar">
+      <div class="sidebar-tabs">
+        <button id="sidebar-tab-cat" class="sidebar-tab active" onclick="switchSidebarTab('cat')">หมวดหมู่</button>
+        <button id="sidebar-tab-evt" class="sidebar-tab" onclick="switchSidebarTab('evt')">วงสนทนา</button>
+      </div>
+      <button onclick="toggleSidebarPanel('main')" class="sidebar-close-btn">✕</button>
+    </div>
+    <div class="sidebar-scroll" id="sidebar-content-cat">
+      <div class="loading-wrap" style="padding:40px 0;"><div class="spinner"></div></div>
+    </div>
+    <div class="sidebar-scroll" id="sidebar-content-evt">
+      <div class="loading-wrap" style="padding:40px 0;"><div class="spinner"></div></div>
+    </div>
+  </nav>
+
+  <!-- MAIN PANEL -->
+  <main id="main">
+    <div class="topbar">
+      <button id="sidebar-toggle" onclick="toggleSidebarMobile()" style="display:none;align-items:center;justify-content:center;width:34px;height:34px;border:1px solid var(--color-border-strong);border-radius:var(--radius-sm);background:var(--color-surface-alt);cursor:pointer;font-size:1rem;flex-shrink:0" aria-label="open menu">☰</button>
+      <div style="position:relative;display:flex;align-items:center;gap:0">
+        <span style="position:absolute;left:10px;font-size:var(--font-size-sm);color:var(--color-text-subtle);pointer-events:none">🔍</span>
+        <input id="topic-search" type="text" placeholder="ค้นหาคำ..." oninput="onSearchInput()" onkeydown="if(event.key==='Enter')commitSearch()" style="padding:7px 12px 7px 32px;border:1px solid var(--color-border-strong);border-radius:var(--radius-md) 0 0 var(--radius-md);background:var(--color-surface-alt);font-family:var(--font-body);font-size:var(--font-size-sm);color:var(--color-text);width:200px;outline:none;transition:border-color 0.15s">
+        <button id="search-commit-btn" onclick="commitSearch()" style="display:none;padding:7px 10px;border:1px solid var(--color-border-strong);border-left:none;border-radius:0 var(--radius-md) var(--radius-md) 0;background:var(--color-accent);color:white;font-family:var(--font-body);font-size:var(--font-size-xs);font-weight:500;cursor:pointer;white-space:nowrap;transition:opacity 0.15s" onmouseenter="this.style.opacity='.85'" onmouseleave="this.style.opacity='1'">ค้นหา</button>
+      </div>
+      <div class="topbar-breadcrumb" id="breadcrumb-cat" onclick="toggleSidebarFromBreadcrumb('cat')" title="เปิด/ปิดหมวดหมู่">
+        <span id="breadcrumb-cat-text">ทุกหมวดหมู่</span>
+      </div>
+      <div class="topbar-breadcrumb" id="breadcrumb-evt" onclick="toggleSidebarFromBreadcrumb('evt')" title="เปิด/ปิดวงสนทนา">
+        <span id="breadcrumb-evt-text">ทุกวงสนทนา</span>
+      </div>
+      <button id="reset-btn" onclick="resetSelection()" style="display:none;align-items:center;gap:4px;padding:4px 0;background:none;border:none;font-family:var(--font-body);font-size:var(--font-size-xs);color:var(--color-text-muted);cursor:pointer;text-decoration:underline;white-space:nowrap">
+        ✕ ล้างตัวกรอง
+      </button>
+      <button onclick="showDownloadModal()" style="background:none;border:none;font-family:var(--font-body);font-size:var(--font-size-xs);color:var(--color-text-muted);cursor:pointer;text-decoration:underline;white-space:nowrap;display:inline-flex;align-items:center;gap:4px;padding:0">⬇ ดาวน์โหลดข้อมูล</button>
+    </div>
+
+    <div class="topics-area" id="topics-area">
+      <div class="loading-wrap" style="min-height:300px">
+        <div class="spinner"></div>
+        <div style="font-size:var(--font-size-sm);color:var(--color-text-muted)">กำลังโหลดข้อมูล...</div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<div id="sidebar-backdrop" onclick="toggleSidebarMobile()"></div>
+
+<!-- DETAIL OVERLAY -->
+<div id="detail-overlay" onclick="handleOverlayClick(event)">
+  <div id="detail-panel">
+    <div class="detail-header" id="detail-header">
+      <button class="detail-close" onclick="closeDetail()">✕</button>
+      <div class="detail-tags" id="detail-tags"></div>
+      <div class="detail-title" id="detail-title"></div>
+      <div id="detail-event-info" style="margin-top:var(--space-2);font-size:var(--font-size-sm);color:var(--color-text-muted);display:flex;gap:var(--space-3);flex-wrap:wrap"></div>
+      <div class="comments-heading" style="margin-top:var(--space-4);display:flex;align-items:center;gap:var(--space-2)">
+        <button id="detail-copy-btn" onclick="copyTopicLink()" style="display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border:1px solid var(--color-border-strong);border-radius:var(--radius-sm);background:var(--color-surface-alt);font-family:var(--font-body);font-size:var(--font-size-xs);color:var(--color-text-muted);cursor:pointer;transition:all var(--transition);white-space:nowrap">🔗 copy link</button>
+      </div>
+    </div>
+    <div class="comments-section" id="comments-section">
+      <div id="comments-tree"></div>
+    </div>
+  </div>
+</div>
+
+<!-- HOW TO READ MODAL -->
+<div id="how-to-read-overlay" onclick="if(event.target===this)closeHowToRead()" style="display:none;position:fixed;inset:0;background:rgba(28,26,22,0.45);z-index:200;align-items:center;justify-content:center;backdrop-filter:blur(2px)">
+  <div style="background:var(--color-surface);border-radius:var(--radius-xl);box-shadow:var(--shadow-panel);padding:var(--space-8);max-width:600px;width:92vw;max-height:85vh;overflow-y:auto;position:relative">
+    <button onclick="closeHowToRead()" style="position:absolute;top:var(--space-4);right:var(--space-4);background:var(--color-surface-alt);border:1px solid var(--color-border-strong);border-radius:50%;width:30px;height:30px;cursor:pointer;font-size:var(--font-size-md);color:var(--color-text-muted)">✕</button>
+
+    <h1 style="font-family:var(--font-display);font-weight:var(--font-display-weight);font-size:var(--font-size-2xl);color:var(--color-text);margin-bottom:var(--space-6)">เกี่ยวกับข้อมูล</h1>
+
+    <!-- Section 1 -->
+    <h2 style="font-family:var(--font-display);font-weight:var(--font-display-weight);font-size:var(--font-size-lg);color:var(--color-text);margin-bottom:var(--space-4)">โครงสร้างข้อมูล</h2>
+    <img src="images/data_structure.png" alt="โครงสร้างข้อมูล" style="width:100%;border-radius:var(--radius-md);margin-bottom:var(--space-5)">
+    <p style="font-size:var(--font-size-sm);color:var(--color-text-muted);line-height:1.75;margin-bottom:var(--space-4)">ข้อมูลแพลตฟอร์มนี้เป็นเสมือนต้นไม้ของเหตุผล ประกอบไปด้วย <strong style="color:var(--color-text)">ข้อถกเถียง</strong> และ <strong style="color:var(--color-text)">เหตุผล</strong></p>
+    <ul style="list-style:none;padding:0;display:flex;flex-direction:column;gap:var(--space-4);margin-bottom:var(--space-8)">
+      <li style="display:flex;gap:var(--space-3);align-items:flex-start">
+        <span style="flex-shrink:0;margin-top:3px">•</span>
+        <div style="font-size:var(--font-size-sm);color:var(--color-text-muted);line-height:1.75"><strong style="color:var(--color-text)">ข้อถกเถียง</strong> คือ ลำต้น เป็นข้อเสนอหรือประโยคแสดงหลักการที่อาจใช้เป็นหลักอ้างอิงในการร่างรัฐธรรมนูญต่อไปได้ มักมีคำว่า "ควร" หรือ "ต้อง" เป็นส่วนประกอบในประโยค</div>
+      </li>
+      <li style="display:flex;gap:var(--space-3);align-items:flex-start">
+        <span style="flex-shrink:0;margin-top:3px">•</span>
+        <div style="font-size:var(--font-size-sm);color:var(--color-text-muted);line-height:1.75">
+          <strong style="color:var(--color-text)">เหตุผล</strong> คือ กิ่งก้านสาขา เป็นข้อความแสดงเหตุผลตอบโต้ข้อถกเถียงใดข้อถกเถียงหนึ่ง ซึ่งอาจเป็นเหตุผลที่ <strong>เห็นด้วย</strong> <strong>เห็นด้วยบางส่วน</strong> (หมายถึง เห็นด้วยแต่มีเงื่อนไขหรือข้อกังวลบางอย่าง) หรือ <strong>ไม่เห็นด้วย</strong> ต่อข้อถกเถียงนั้นๆ
+          <ul style="list-style:none;padding:0;margin-top:var(--space-2)">
+            <li style="display:flex;gap:var(--space-2);align-items:flex-start;padding-left:var(--space-4)"><span style="flex-shrink:0;margin-top:3px">–</span><span>เหตุผลหนึ่งสามารถมีเหตุผลอื่นๆ ต่อยอดได้ โดยอาจเป็นเหตุผลที่ <strong>เห็นด้วย</strong> <strong>เห็นด้วยบางส่วน</strong> หรือ <strong>ไม่เห็นด้วย</strong> ต่อเหตุผลนั้นๆ</span></li>
+          </ul>
+        </div>
+      </li>
+    </ul>
+
+    <!-- Section 2 -->
+    <h2 style="font-family:var(--font-display);font-weight:var(--font-display-weight);font-size:var(--font-size-lg);color:var(--color-text);margin-bottom:var(--space-4);padding-top:var(--space-6);border-top:1px solid var(--color-border)">ที่มาและกระบวนการจัดการข้อมูล</h2>
+    <p style="font-size:var(--font-size-sm);color:var(--color-text-muted);line-height:1.75;margin-bottom:var(--space-4)">ข้อมูลในแพลตฟอร์มนี้มาจากการจัดวงสนทนาในวาระต่าง ๆ โดย WeVis และองค์กรเครือข่าย ซึ่งมีกระบวนการจัดการข้อมูลดังนี้</p>
+    <ol style="padding-left:var(--space-5);display:flex;flex-direction:column;gap:var(--space-4);font-size:var(--font-size-sm);color:var(--color-text-muted);line-height:1.75;margin-bottom:var(--space-8)">
+      <li><strong style="color:var(--color-text)">จัดวงสนทนาและบันทึกบทสนทนาที่เกิดขึ้น</strong></li>
+      <li><strong style="color:var(--color-text)">เรียบเรียงและจัดระเบียบบทสนทนา</strong>
+        <ul style="list-style:disc;padding-left:var(--space-5);margin-top:var(--space-2);display:flex;flex-direction:column;gap:var(--space-2)">
+          <li>เมื่อจบวงสนทนา ผู้จดบันทึกบทสนทนาจะนำข้อมูลมาเรียบเรียงใหม่ตามโครงสร้างของเว็บไซต์ และกรอกข้อมูลเข้าสู่ระบบหลังบ้าน</li>
+          <li>เนื่องจากการสนทนาตามธรรมชาติมักไม่ได้มีโครงสร้างตายตัว คำพูดที่เกิดขึ้นในวงสนทนาจึงไม่ได้ถูกนำมาแสดงบนเว็บไซต์แบบตรงไปตรงมา แต่จะถูกเรียบเรียงและจัดระเบียบใหม่ โดยคำพูดที่ไม่ได้มีลักษณะเป็นข้อถกเถียงหรือเหตุผลประกอบข้อถกเถียง จะไม่ถูกนำมาแสดงบนเว็บไซต์</li>
+        </ul>
+      </li>
+      <li><strong style="color:var(--color-text)">กรอกข้อมูลเข้าสู่ระบบ</strong>
+        <ul style="list-style:disc;padding-left:var(--space-5);margin-top:var(--space-2)">
+          <li>หากพบข้อถกเถียงที่ซ้ำกับวงสนทนาอื่น ผู้กรอกข้อมูลจะไม่สร้างข้อถกเถียงใหม่ แต่จะนำข้อมูลใหม่ไปรวมกับข้อถกเถียงเดิม ดังนั้น ข้อถกเถียงแต่ละข้อบนเว็บไซต์จึงอาจมาจากหลายวงสนทนาที่เกิดขึ้นต่างวาระหรือต่างช่วงเวลา การเลือกใช้วิธีนี้ ก็เพื่อให้ผู้ใช้งานเห็นความหลากหลายของข้อถกเถียงเดียวกันได้ในที่เดียว</li>
+        </ul>
+      </li>
+      <li><strong style="color:var(--color-text)">จัดหมวดข้อถกเถียง</strong>
+        <ul style="list-style:disc;padding-left:var(--space-5);margin-top:var(--space-2);display:flex;flex-direction:column;gap:var(--space-2)">
+          <li>ข้อถกเถียงจะถูกแบ่งออกเป็นหมวดหมู่ 2 ระดับ เพื่ออำนวยความสะดวกในการค้นหา
+            <ul style="list-style:circle;padding-left:var(--space-5);margin-top:var(--space-2);display:flex;flex-direction:column;gap:var(--space-2)">
+              <li><strong style="color:var(--color-text)">หมวดหลัก</strong> จัดโดยผู้กรอกข้อมูล โดยสามารถเลือกได้มากกว่า 1 หมวดต่อข้อถกเถียง</li>
+              <li><strong style="color:var(--color-text)">ประเด็นย่อย</strong> มาจากการนำสมาชิกในแต่ละหมวดหลักมาแบ่งเป็นกลุ่มประเด็นย่อย โดยใช้โมเดลคณิตศาสตร์ Agglomerative ซึ่งพิจารณาจากข้อความที่มีความหมายใกล้เคียงกัน จากนั้นใช้โมเดลภาษา Gemini ในการตั้งชื่อให้แต่ละประเด็น</li>
+            </ul>
+          </li>
+        </ul>
+      </li>
+    </ol>
+
+    <!-- Section 3 -->
+    <h2 style="font-family:var(--font-display);font-weight:var(--font-display-weight);font-size:var(--font-size-lg);color:var(--color-text);margin-bottom:var(--space-4);padding-top:var(--space-6);border-top:1px solid var(--color-border)">ข้อควรระวังในการตีความข้อมูล</h2>
+    <div style="background:var(--color-surface-alt);border-radius:var(--radius-md);border-left:3px solid var(--color-partial);padding:var(--space-4) var(--space-5);display:flex;flex-direction:column;gap:var(--space-3)">
+      <p style="font-size:var(--font-size-sm);color:var(--color-text-muted);line-height:1.75;margin:0">ข้อมูลในแพลตฟอร์มนี้ <strong style="color:var(--color-text)">ไม่ใช่ผลสำรวจความคิดเห็น (Poll)</strong> เนื่องจากไม่ได้ใช้กระบวนการสุ่มตัวอย่างตามหลักการวิจัย และคำตอบส่วนใหญ่มีลักษณะเป็นคำตอบปลายเปิด</p>
+      <p style="font-size:var(--font-size-sm);color:var(--color-text-muted);line-height:1.75;margin:0">ดังนั้น <strong style="color:var(--color-text)">'จำนวน'</strong> ต่าง ๆ ที่ปรากฏในเว็บไซต์ จึงไม่สามารถนำไปใช้อ้างอิงเพื่อสะท้อนความคิดเห็นของประชาชนทั้งประเทศได้</p>
+      <p style="font-size:var(--font-size-sm);color:var(--color-text-muted);line-height:1.75;margin:0">บทบาทของข้อมูลเชิงปริมาณในระบบ คือการช่วย <strong style="color:var(--color-text)">ชี้ให้เห็นประเด็นที่มีการถกเถียงและมุมมองที่หลากหลาย</strong> เพื่อให้ผู้ใช้งานสามารถลงลึกไปสำรวจเหตุผลและมุมมองที่แตกต่างกันได้ต่อไป</p>
+    </div>
+  </div>
+</div>
+
+<!-- DOWNLOAD MODAL -->
+<div id="download-overlay" onclick="if(event.target===this)closeDownloadModal()" style="display:none;position:fixed;inset:0;background:rgba(28,26,22,0.45);z-index:200;align-items:center;justify-content:center;backdrop-filter:blur(2px)">
+  <div style="background:var(--color-surface);border-radius:var(--radius-xl);box-shadow:var(--shadow-panel);padding:var(--space-8);max-width:480px;width:92vw;position:relative">
+    <button onclick="closeDownloadModal()" style="position:absolute;top:var(--space-4);right:var(--space-4);background:var(--color-surface-alt);border:1px solid var(--color-border-strong);border-radius:50%;width:30px;height:30px;cursor:pointer;font-size:var(--font-size-md);color:var(--color-text-muted)">✕</button>
+    <div style="font-size:2rem;margin-bottom:var(--space-4)">📦</div>
+    <h2 style="font-family:var(--font-display);font-weight:var(--font-display-weight);font-size:var(--font-size-xl);color:var(--color-text);margin-bottom:var(--space-4)">ดาวน์โหลดข้อมูล</h2>
+    <p style="font-size:var(--font-size-sm);color:var(--color-text-muted);line-height:1.75;margin-bottom:var(--space-3)">คุณกำลังจะดาวน์โหลดข้อมูลทั้งหมดในเว็บไซต์นี้ในรูปแบบไฟล์ <strong>CSV</strong> บรรจุในไฟล์ <strong>.zip</strong> ประกอบด้วย:</p>
+    <ul style="font-size:var(--font-size-sm);color:var(--color-text-muted);line-height:1.75;padding-left:var(--space-5);margin-bottom:var(--space-6);display:flex;flex-direction:column;gap:2px">
+      <li>category.csv — หมวดหมู่และประเด็นย่อย</li>
+      <li>topics.csv — ข้อถกเถียงทั้งหมด</li>
+      <li>comments.csv — เหตุผลทั้งหมด</li>
+      <li>events.csv — วงสนทนา</li>
+      <li>topic_question.csv — ความเชื่อมโยงข้อถกเถียงกับประเด็น</li>
+      <li>topic_event.csv — ความเชื่อมโยงข้อถกเถียงกับวงสนทนา</li>
+      <li>comment_event.csv — ความเชื่อมโยงเหตุผลกับวงสนทนา</li>
+    </ul>
+    <div style="display:flex;gap:var(--space-3);justify-content:flex-end">
+      <button onclick="closeDownloadModal()" style="padding:8px 20px;background:none;border:1px solid var(--color-border-strong);border-radius:var(--radius-md);font-family:var(--font-body);font-size:var(--font-size-sm);color:var(--color-text-muted);cursor:pointer">ยกเลิก</button>
+      <button id="download-confirm-btn" onclick="confirmDownload()" style="padding:8px 20px;background:var(--color-accent);border:none;border-radius:var(--radius-md);font-family:var(--font-body);font-size:var(--font-size-sm);color:white;cursor:pointer;display:inline-flex;align-items:center;gap:6px">⬇ ดาวน์โหลด</button>
+    </div>
+  </div>
+</div>
+
+<script src="js/utils.js?v=3" charset="utf-8"></script>
+<script src="js/dashboard.js?v=18" charset="utf-8"></script>
+<script src="js/nav.js" charset="utf-8"></script>
+</body>
+</html>

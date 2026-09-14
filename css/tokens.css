@@ -1,0 +1,60 @@
+/* ── Design Tokens ──────────────────────────────────
+   Single source of truth for all design values.
+   Import this first on every page.
+────────────────────────────────────────────────── */
+:root {
+  --color-bg: #BDE6FF;
+  --color-surface: #ffffff;
+  --color-surface-alt: #f0f9ff;
+  --color-border: rgba(0,80,140,0.12);
+  --color-border-strong: rgba(0,80,140,0.22);
+  --color-text: #0d2a3d;
+  --color-text-muted: #3a6080;
+  --color-text-subtle: #6a96b4;
+  --color-accent: #2a5c8a;
+  --color-accent-light: #daeeff;
+  --color-agree: #1a7a40;
+  --color-agree-light: #9DFF9D;
+  --color-partial: #8a6e00;
+  --color-partial-light: #FFFA8D;
+  --color-disagree: #a02020;
+  --color-disagree-light: #FFA59E;
+  --color-sidebar-bg: #E7F7FF;
+  --color-sidebar-text: #0d2a3d;
+  --color-sidebar-muted: #4a7a99;
+  --color-sidebar-hover: rgba(0,80,140,0.07);
+  --color-sidebar-active: rgba(0,80,140,0.13);
+  --color-sidebar-border: rgba(0,80,140,0.10);
+
+  --font-display: 'IBM Plex Sans Thai', sans-serif;
+  --font-display-weight: 700;
+  --font-body: 'IBM Plex Sans Thai Looped', sans-serif;
+
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.8125rem;
+  --font-size-base: 0.9375rem;
+  --font-size-md: 1rem;
+  --font-size-lg: 1.125rem;
+  --font-size-xl: 1.375rem;
+  --font-size-2xl: 1.75rem;
+
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-xl: 22px;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+
+  --shadow-card: 0 1px 3px rgba(0,0,0,0.06), 0 4px 12px rgba(0,0,0,0.04);
+  --shadow-elevated: 0 4px 16px rgba(0,0,0,0.10), 0 1px 4px rgba(0,0,0,0.06);
+  --shadow-panel: 0 8px 40px rgba(0,0,0,0.16);
+
+  --sidebar-width: 25vw;
+  --transition: 180ms ease;
+}

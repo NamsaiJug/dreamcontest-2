@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DREAMCON — รัฐธรรมนูญในฝัน</title>
+<link rel="icon" href="data:,">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai+Looped:wght@300;400;500;600&family=IBM+Plex+Sans+Thai:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/tokens.css">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/nav.css?v=3">
+<style>
+html, body { min-height: 100%; overflow-x: hidden; }
+
+/* ── Layout ── */
+section { padding: calc(var(--space-8)*2) 0; }
+.section-inner { max-width: 1200px; width: 80vw; margin: 0 auto; }
+.section-heading { font-family: var(--font-display); font-weight: var(--font-display-weight); font-size: var(--font-size-2xl); color: var(--color-text); margin-bottom: var(--space-5); line-height: 1.25; }
+.section-sub { font-size: var(--font-size-sm); color: var(--color-text-subtle); text-transform: uppercase; letter-spacing: 0.08em; font-weight: 600; margin-bottom: var(--space-3); }
+
+/* ── Buttons ── */
+.btn-primary { display: inline-flex; align-items: center; gap: var(--space-2); padding: 12px 28px; background: var(--color-accent); color: white; border-radius: var(--radius-md); font-family: var(--font-body); font-size: var(--font-size-md); font-weight: 500; text-decoration: none; transition: opacity 0.15s; border: none; cursor: pointer; }
+.btn-primary:hover { opacity: .85; }
+.btn-secondary { display: inline-flex; align-items: center; gap: var(--space-2); padding: 10px 22px; background: transparent; color: var(--color-accent); border: 1px solid var(--color-accent); border-radius: var(--radius-md); font-family: var(--font-body); font-size: var(--font-size-sm); font-weight: 500; text-decoration: none; transition: all 0.15s; }
+.btn-secondary:hover { background: var(--color-accent); color: white; }
+
+/* ── 1. Landing ── */
+#landing { min-height: calc(100vh - 60px); display: flex; align-items: center; border-bottom: 1px solid var(--color-border); }
+.landing-logo { width: 50vw; max-width: 450px; height: auto; margin-bottom: var(--space-4); }
+.landing-slogan { font-family: var(--font-display); font-weight: var(--font-display-weight); font-size: clamp(0.8rem, 2vw, 1rem); color: var(--color-text-subtle); letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: var(--space-5); }
+.landing-desc { font-size: var(--font-size-lg); color: var(--color-text-muted); line-height: 1.75; max-width: 600px; margin-bottom: var(--space-6); }
+.landing-numbers { display: flex; gap: var(--space-8); margin-bottom: var(--space-8); flex-wrap: wrap; }
+.landing-num { display: flex; flex-direction: column; gap: 4px; }
+.landing-num-val { font-family: var(--font-display); font-weight: var(--font-display-weight); font-size: clamp(2.5rem, 5vw, 4rem); color: var(--color-text); line-height: 1; }
+.landing-num-label { font-size: var(--font-size-sm); color: var(--color-text-muted); }
+.landing-num-sep { font-size: var(--font-size-lg); color: var(--color-text-subtle); align-self: center; }
+
+/* ── 2. About data ── */
+#about-data { background: var(--color-surface); }
+.about-data-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-8); align-items: center; }
+.about-data-img { width: 100%; border-radius: var(--radius-lg); }
+.about-data-text { display: flex; flex-direction: column; gap: var(--space-5); }
+.about-data-desc { font-size: var(--font-size-base); color: var(--color-text-muted); line-height: 1.75; }
+@media (max-width: 768px) { .about-data-grid { grid-template-columns: 1fr; } }
+
+/* ── 3. Explore ── */
+#explore { }
+.home-sub-title { font-size: var(--font-size-sm); font-weight: 600; color: var(--color-text-muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: var(--space-3); margin-top: var(--space-7); display: flex; align-items: center; justify-content: space-between; }
+.explore-subsection { margin-bottom: var(--space-6); }
+
+/* Carousel */
+.cat-carousel-wrap { position: relative; }
+.cat-scroll { display: flex; gap: var(--space-4); overflow-x: auto; padding-bottom: var(--space-1); scroll-snap-type: x mandatory; scrollbar-width: none; }
+.cat-scroll::-webkit-scrollbar { display: none; }
+.cat-carousel-btn { position: absolute; top: 50%; transform: translateY(-50%); z-index: 2; width: 36px; height: 36px; border-radius: 50%; background: var(--color-surface); border: 1px solid var(--color-border-strong); box-shadow: var(--shadow-card); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: var(--font-size-sm); color: var(--color-text-muted); transition: all 0.15s; }
+.cat-carousel-btn:hover { border-color: var(--color-accent); color: var(--color-accent); }
+.cat-carousel-btn.left { left: -18px; }
+.cat-carousel-btn.right { right: -18px; }
+
+/* Category cards */
+.cat-card { flex-shrink: 0; width: 300px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-lg); padding: var(--space-5); display: flex; flex-direction: column; gap: var(--space-3); scroll-snap-align: start; transition: box-shadow 0.15s, border-color 0.15s; }
+.cat-card:hover { box-shadow: var(--shadow-card); border-color: var(--color-border-strong); }
+.cat-card-header { display: flex; flex-direction: column; gap: var(--space-2); text-decoration: none; cursor: pointer; border-radius: var(--radius-md); padding: 4px; margin: -4px; transition: background 0.15s; }
+.cat-card-header:hover { background: var(--color-surface-alt); }
+.cat-card-top { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--space-2); }
+.cat-card-heading { font-family: var(--font-display); font-weight: var(--font-display-weight); font-size: var(--font-size-lg); color: var(--color-text); line-height: 1.3; }
+.cat-card-explore { font-size: var(--font-size-xs); color: var(--color-accent); white-space: nowrap; padding: 3px 10px; border: 1px solid var(--color-accent); border-radius: 20px; flex-shrink: 0; margin-top: 2px; transition: all 0.15s; }
+.cat-card-header:hover .cat-card-explore { background: var(--color-accent); color: white; }
+.cat-card-count { font-size: var(--font-size-sm); color: var(--color-text-muted); }
+.cat-card-subs { display: flex; flex-direction: column; gap: 4px; border-top: 1px solid var(--color-border); padding-top: var(--space-3); margin-top: auto; }
+.cat-card-subs-label { font-size: 0.65rem; color: var(--color-text-subtle); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 2px; }
+.cat-card-sub { font-size: var(--font-size-xs); color: var(--color-text-muted); line-height: 1.4; display: flex; align-items: center; justify-content: space-between; gap: var(--space-2); text-decoration: none; padding: 4px 6px; border-radius: var(--radius-sm); margin: 0 -6px; transition: background 0.15s; }
+.cat-card-sub:hover { background: var(--color-surface-alt); }
+.cat-card-sub-right { display: flex; align-items: center; gap: 5px; flex-shrink: 0; }
+.cat-card-sub-count { color: var(--color-text-subtle); white-space: nowrap; }
+.cat-card-sub-arrow { display: inline-flex; align-items: center; justify-content: center; font-size: var(--font-size-xs); color: var(--color-accent); padding: 2px 8px; border: 1px solid var(--color-accent); border-radius: 20px; transition: all 0.15s; }
+.cat-card-sub:hover .cat-card-sub-arrow { background: var(--color-accent); color: white; }
+
+/* Event cards */
+.evt-card { flex-shrink: 0; width: 260px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-lg); padding: var(--space-5); display: flex; flex-direction: column; gap: var(--space-3); scroll-snap-align: start; text-decoration: none; transition: box-shadow 0.15s, border-color 0.15s; }
+.evt-card:hover { box-shadow: var(--shadow-card); border-color: var(--color-border-strong); }
+.evt-card:hover .cat-card-explore { background: var(--color-accent); color: white; }
+.evt-date { font-size: var(--font-size-xs); color: var(--color-text-subtle); }
+.evt-name { font-size: var(--font-size-md); color: var(--color-text); font-weight: 500; line-height: 1.4; flex: 1; }
+.evt-tags { display: flex; flex-wrap: wrap; gap: 4px; }
+.evt-tag { font-size: 0.65rem; padding: 1px 7px; border-radius: 20px; background: var(--color-accent-light); color: var(--color-accent); font-weight: 500; }
+.evt-count { font-size: var(--font-size-xs); color: var(--color-text-muted); margin-top: auto; }
+
+/* Demo cards */
+.demo-carousel-wrap { position: relative; }
+.demo-tags { display: flex; gap: var(--space-3); overflow-x: auto; padding-bottom: var(--space-1); scroll-snap-type: x mandatory; scrollbar-width: none; margin-top: var(--space-2); }
+.demo-tags::-webkit-scrollbar { display: none; }
+.demo-card { flex-shrink: 0; display: flex; flex-direction: column; gap: var(--space-2); padding: var(--space-4) var(--space-5); background: var(--color-accent-light); border: 1px solid transparent; border-radius: var(--radius-lg); text-decoration: none; transition: box-shadow 0.15s, border-color 0.15s; scroll-snap-align: start; min-width: 160px; }
+.demo-card:hover { box-shadow: var(--shadow-card); border-color: var(--color-accent); }
+.demo-card:hover .demo-card-arrow { background: var(--color-accent); color: white; }
+.demo-card-name { font-family: var(--font-body); font-weight: 500; font-size: var(--font-size-sm); color: var(--color-accent); }
+.demo-card-count { font-size: var(--font-size-xs); color: var(--color-text-muted); }
+.demo-card-arrow { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; border: 1px solid var(--color-accent); border-radius: 50%; color: var(--color-accent); font-size: var(--font-size-sm); transition: all 0.15s; flex-shrink: 0; }
+
+/* ── 4. Collaborate ── */
+#collaborate { background: var(--color-surface); }
+.collab-columns { display: grid; grid-template-columns: 1fr 1px 1fr; gap: var(--space-8); margin-top: var(--space-6); }
+.collab-divider { background: var(--color-border); }
+.collab-col { display: flex; flex-direction: column; gap: var(--space-2); }
+.collab-col-title { font-size: var(--font-size-base); font-weight: 600; color: var(--color-text); line-height: 1.5; }
+.collab-col-body { font-size: var(--font-size-sm); color: var(--color-text-muted); line-height: 1.75; }
+.collab-col-body a { color: var(--color-accent); }
+@media (max-width: 768px) { .collab-columns { grid-template-columns: 1fr; } .collab-divider { height: 1px; width: 100%; } }
+.social-links { display: flex; gap: var(--space-4); flex-wrap: wrap; margin-top: var(--space-3); }
+.social-link { display: inline-flex; align-items: center; gap: 6px; font-size: var(--font-size-sm); color: var(--color-accent); text-decoration: none; }
+.social-link:hover { text-decoration: underline; }
+
+/* ── 5. Related ── */
+#related { }
+.related-desc { font-size: var(--font-size-sm); color: var(--color-text-muted); margin-bottom: var(--space-6); }
+.related-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: var(--space-4); }
+.related-card { display: flex; flex-direction: column; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-lg); overflow: hidden; text-decoration: none; transition: box-shadow 0.15s, border-color 0.15s; }
+.related-card:hover { box-shadow: var(--shadow-elevated); border-color: var(--color-border-strong); }
+.related-card-img { width: 100%; height: 140px; object-fit: cover; display: block; background: var(--color-surface-alt); }
+.related-card-body { padding: var(--space-4); display: flex; flex-direction: column; gap: var(--space-2); flex: 1; }
+.related-card-title { font-size: var(--font-size-md); font-weight: 600; color: var(--color-text); }
+.related-card-desc { font-size: var(--font-size-xs); color: var(--color-text-muted); line-height: 1.6; flex: 1; }
+.related-card-link { font-size: var(--font-size-xs); color: var(--color-accent); margin-top: var(--space-2); }
+
+/* ── 6. Contributor ── */
+#contributor { background: var(--color-surface); }
+.contributor-desc { font-size: var(--font-size-sm); color: var(--color-text-muted); line-height: 1.75; max-width: 640px; margin-bottom: var(--space-6); }
+.contributor-logos { display: flex; align-items: center; gap: var(--space-6); flex-wrap: wrap; margin-bottom: var(--space-6); }
+.contributor-logo { height: 32px; width: auto; opacity: 0.75; filter: grayscale(1); transition: opacity 0.15s; }
+.contributor-logo:hover { opacity: 1; filter: none; }
+
+@media (max-width: 600px) {
+  .section-inner { width: 90vw; }
+  .landing-numbers { gap: var(--space-5); }
+  #landing { min-height: auto; padding: calc(var(--space-8)*1.5) 0; }
+}
+</style>
+</head>
+<body data-page="home">
+
+<div id="site-nav"></div>
+
+<!-- 1. LANDING -->
+<section id="landing">
+  <div class="section-inner" style="text-align:center;display:flex;flex-direction:column;align-items:center">
+    <img src="images/dream-con-logo-white.svg" alt="DREAMCON" class="landing-logo">
+    <div class="landing-slogan">Conversation for Constitution</div>
+    <p class="landing-desc">Dream Constitution โครงการรวบรวมข้อถกเถียงของคนไทยต่อ 'รัฐธรรมนูญในฝัน' ผ่านวงสนทนาที่จัดขึ้นโดย WeVis และองค์กรเครือข่ายทั่วประเทศ</p>
+    <div class="landing-numbers">
+      <div class="landing-num">
+        <div class="landing-num-val" id="count-topics">0</div>
+        <div class="landing-num-label">ข้อถกเถียง</div>
+      </div>
+      <div class="landing-num-sep">จาก</div>
+      <div class="landing-num">
+        <div class="landing-num-val" id="count-events">0</div>
+        <div class="landing-num-label">วงสนทนา</div>
+      </div>
+    </div>
+    <div id="latest-evt-date" style="font-size:var(--font-size-xs);color:var(--color-text-subtle);margin-bottom:var(--space-6)"></div>
+    <a class="btn-primary" href="dashboard.html">สำรวจข้อถกเถียง →</a>
+  </div>
+</section>
+
+<!-- 2. ABOUT DATA -->
+<section id="about-data">
+  <div class="section-inner">
+    <div class="about-data-grid">
+      <img src="images/data_structure.png" alt="โครงสร้างข้อมูล" class="about-data-img">
+      <div class="about-data-text">
+        <h2 class="section-heading">ความหลากหลายของมุมมอง คือหัวใจสำคัญของโครงการนี้</h2>
+        <p class="about-data-desc">เรานำข้อถกเถียงจากแต่ละวงสนทนามาเรียบเรียงและจัดโครงสร้างให้เป็นระบบ โดยหวังว่าช่วยให้ผู้ที่มีส่วนในการร่างรัฐธรรมนูญสามารถพิจารณาทางเลือกต่างๆ ได้รอบด้านมากขึ้น และนำไปสู่การพูดคุยเพื่อหาข้อตกลงร่วมกัน</p>
+        <div style="border-left:3px solid var(--color-border-strong);padding-left:var(--space-4)">
+          <div style="font-size:var(--font-size-xs);font-weight:600;color:var(--color-text-subtle);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:var(--space-2)">ข้อควรระวังในการตีความข้อมูล</div>
+          <p style="font-size:var(--font-size-xs);color:var(--color-text-subtle);line-height:1.75;margin-bottom:var(--space-2)">ข้อมูลในแพลตฟอร์มนี้ ไม่ใช่ผลสำรวจความคิดเห็น (Poll) เนื่องจากไม่ได้ใช้กระบวนการสุ่มตัวอย่างตามหลักการวิจัย และคำตอบส่วนใหญ่มีลักษณะเป็นคำตอบปลายเปิด</p>
+          <p style="font-size:var(--font-size-xs);color:var(--color-text-subtle);line-height:1.75;margin:0">'จำนวน' ต่าง ๆ ที่ปรากฏในเว็บไซต์ จึงไม่สามารถนำไปใช้อ้างอิงเพื่อสะท้อนความคิดเห็นของประชาชนทั้งประเทศได้</p>
+        </div>
+        <div><a class="btn-secondary" href="about.html#about-data">อ่านรายละเอียดเกี่ยวกับข้อมูล →</a></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 3. EXPLORE -->
+<section id="explore">
+  <div class="section-inner">
+    <h2 class="section-heading">สำรวจข้อถกเถียง</h2>
+
+    <!-- Category -->
+    <div class="explore-subsection">
+      <div class="home-sub-title">
+        <span>สำรวจตามหมวดหมู่ <span id="cat-count" style="font-weight:400;color:var(--color-text-subtle)"></span></span>
+      </div>
+      <div class="cat-carousel-wrap">
+        <button class="cat-carousel-btn left" onclick="scrollCarousel(-1)" aria-label="ก่อนหน้า">&#8249;</button>
+        <div id="cat-list" class="cat-scroll"><div style="color:var(--color-text-subtle);font-size:var(--font-size-sm)">กำลังโหลด...</div></div>
+        <button class="cat-carousel-btn right" onclick="scrollCarousel(1)" aria-label="ถัดไป">&#8250;</button>
+      </div>
+    </div>
+
+    <!-- Event -->
+    <div class="explore-subsection">
+      <div class="home-sub-title">
+        <span>สำรวจตามวงสนทนา <span id="evt-count" style="font-weight:400;color:var(--color-text-subtle)"></span></span>
+        <a id="evt-all-btn" href="dashboard.html" style="font-size:var(--font-size-xs);color:var(--color-accent);text-decoration:none;padding:3px 10px;border:1px solid var(--color-accent);border-radius:20px;transition:all 0.15s;white-space:nowrap" onmouseenter="this.style.background='var(--color-accent)';this.style.color='white'" onmouseleave="this.style.background='';this.style.color='var(--color-accent)'">ทั้งหมด</a>
+      </div>
+      <div class="cat-carousel-wrap">
+        <button class="cat-carousel-btn left" onclick="scrollEvtCarousel(-1)" aria-label="ก่อนหน้า">&#8249;</button>
+        <div id="evt-list" class="cat-scroll"><div style="color:var(--color-text-subtle);font-size:var(--font-size-sm)">กำลังโหลด...</div></div>
+        <button class="cat-carousel-btn right" onclick="scrollEvtCarousel(1)" aria-label="ถัดไป">&#8250;</button>
+      </div>
+    </div>
+
+    <!-- Demographic -->
+    <div class="explore-subsection">
+      <div class="home-sub-title">หรือเลือกวงสนทนาตามลักษณะผู้เข้าร่วม</div>
+      <div style="font-size:var(--font-size-xs);color:var(--color-text-subtle);margin-bottom:var(--space-3)">หมายเหตุ: 1 วงสนทนามีผู้เข้าร่วมได้มากกว่า 1 ลักษณะ</div>
+      <div class="demo-carousel-wrap">
+        <button class="cat-carousel-btn left" onclick="scrollDemoCarousel(-1)">&#8249;</button>
+        <div id="demo-tags" class="demo-tags"></div>
+        <button class="cat-carousel-btn right" onclick="scrollDemoCarousel(1)">&#8250;</button>
+      </div>
+    </div>
+      <div style="margin-top:var(--space-8);text-align:center"><a class="btn-primary" href="dashboard.html">สำรวจข้อถกเถียงทั้งหมด →</a></div>
+  </div>
+</section>
+
+<!-- 4. COLLABORATE -->
+<section id="collaborate">
+  <div class="section-inner">
+    <h2 class="section-heading">ช่องทางการมีส่วนร่วม</h2>
+    <div class="collab-columns">
+      <div class="collab-col">
+        <div style="font-size:1.75rem;margin-bottom:var(--space-2)">🤝</div>
+        <div class="collab-col-title">เป็นพาร์ทเนอร์กับ WeVis เพื่อจัดวงสนทนา</div>
+        <div class="collab-col-body">สามารถติดต่อได้ที่ <a href="mailto:contact@wevis.info">contact@wevis.info</a></div>
+      </div>
+      <div class="collab-divider"></div>
+      <div class="collab-col">
+        <div style="font-size:1.75rem;margin-bottom:var(--space-2)">💬</div>
+        <div class="collab-col-title">เข้าร่วมวงสนทนาในอนาคต</div>
+        <div class="collab-col-body">สามารถติดตามการประชาสัมพันธ์ได้ทาง social media ของ WeVis</div>
+        <div class="social-links">
+          <a class="social-link" href="https://www.facebook.com/wevisdemo" target="_blank" rel="noopener">📘 Facebook</a>
+          <a class="social-link" href="https://www.instagram.com/wevisdemo/" target="_blank" rel="noopener">📷 Instagram</a>
+          <a class="social-link" href="https://x.com/wevisdemo" target="_blank" rel="noopener">𝕏 X (Twitter)</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 5. RELATED -->
+<section id="related">
+  <div class="section-inner">
+    <h2 class="section-heading">โครงการอื่นๆ เกี่ยวกับรัฐธรรมนูญ</h2>
+    <div class="related-grid">
+      <a class="related-card" href="https://wevis.info/fill-right-gaps/" target="_blank" rel="noopener">
+        <img class="related-card-img" src="images/fill-right-gaps.jpg" alt="Fill the Right Gaps">
+        <div class="related-card-body">
+          <div class="related-card-title">Fill the Right Gaps</div>
+          <div class="related-card-desc">สำรวจการเขียนเรื่องสิทธิเสรีภาพในรัฐธรรมนูญของ 161 ประเทศทั่วโลก ที่ยังไม่ปรากฎในรัฐธรรมนูญไทย เพื่อหาความเป็นไปได้ใหม่ๆ</div>
+        </div>
+      </a>
+      <a class="related-card" href="https://reconstitution.wevis.info" target="_blank" rel="noopener">
+        <img class="related-card-img" src="images/reconstitution.jpg" alt="Reconstitution">
+        <div class="related-card-body">
+          <div class="related-card-title">Reconstitution</div>
+          <div class="related-card-desc">เปรียบเทียบรัฐธรรมนูญแต่ละหมวดของประเทศไทย ตั้งแต่ฉบับแรกถึงปัจจุบัน</div>
+        </div>
+      </a>
+      <a class="related-card" href="https://wevis.info/cda-simulator" target="_blank" rel="noopener">
+        <img class="related-card-img" src="images/cda-sim.jpg" alt="CDA Simulator">
+        <div class="related-card-body">
+          <div class="related-card-title">CDA Simulator</div>
+          <div class="related-card-desc">สำรวจโมเดลในการเลือกสภาร่างรัฐธรรมนูญ (สสร.) แบบต่างๆ พร้อมข้อดี-ข้อเสีย</div>
+        </div>
+      </a>
+      <a class="related-card" href="https://conlab.wevis.info" target="_blank" rel="noopener">
+        <img class="related-card-img" src="images/conlab.jpg" alt="Constitution Lab">
+        <div class="related-card-body">
+          <div class="related-card-title">Constitution Lab</div>
+          <div class="related-card-desc">ห้องเรียนซ้อมออกแบบรัฐธรรมนูญในประเด็นต่างๆ เช่น รัฐสภา องค์กรอิสระ ระบบเลือกตั้ง</div>
+        </div>
+      </a>
+      <a class="related-card" href="https://wevis.info/con-court" target="_blank" rel="noopener">
+        <img class="related-card-img" src="images/concourt.jpg" alt="The Constitutional Court">
+        <div class="related-card-body">
+          <div class="related-card-title">The Constitutional Court</div>
+          <div class="related-card-desc">ชำแหละคำวินิจฉัยศาลรัฐธรรมนูญไทย ทำหน้าที่ตามค่านิยมของตัวเองมากน้อยแค่ไหน</div>
+        </div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- 6. CONTRIBUTOR -->
+<section id="contributor">
+  <div class="section-inner">
+    <h2 class="section-heading">ผู้จัดทำโครงการ</h2>
+    <p class="contributor-desc">โครงการ Dream Con เกิดจากความร่วมมือขององค์กรต่างๆ ได้แก่ มูลนิธิฟรีดริช เนามัน (FNF) วีวิซ เดโม (WeVis) สถาบันเพื่อการยุติธรรมแห่งประเทศไทย (TIJ) และ Hand Social Enterprises</p>
+    <div class="contributor-logos">
+      <img class="contributor-logo" src="images/wevis-logo-black.svg" alt="WeVis">
+      <img class="contributor-logo" src="images/fnf-logo-black.svg" alt="FNF">
+      <img class="contributor-logo" src="images/the-active-logo-black.svg" alt="The Active">
+      <img class="contributor-logo" src="images/101pub-logo-black.svg" alt="101 Public">
+      <img class="contributor-logo" src="images/hand-logo-black.svg" alt="Hand">
+      <img class="contributor-logo" src="images/tij-logo-black.svg" alt="TIJ">
+    </div>
+    <a class="btn-secondary" href="about.html">อ่านรายละเอียดเพิ่มเติมเกี่ยวกับโครงการ →</a>
+  </div>
+</section>
+
+<script src="js/utils.js" charset="utf-8"></script>
+<script>
+// ── Animate counter ──
+function animateCount(elId, target, duration) {
+  const el = document.getElementById(elId);
+  if (!el) return;
+  const start = performance.now();
+  function update(now) {
+    const p = Math.min((now - start) / duration, 1);
+    const ease = p < 0.5 ? 2*p*p : -1+(4-2*p)*p;
+    el.textContent = Math.round(ease * target);
+    if (p < 1) requestAnimationFrame(update);
+  }
+  requestAnimationFrame(update);
+}
+
+// ── Carousel helpers ──
+function scrollCarousel(dir) { document.getElementById('cat-list')?.scrollBy({ left: dir * 320, behavior: 'smooth' }); }
+function scrollEvtCarousel(dir) { document.getElementById('evt-list')?.scrollBy({ left: dir * 280, behavior: 'smooth' }); }
+function scrollDemoCarousel(dir) { document.getElementById('demo-tags')?.scrollBy({ left: dir * 200, behavior: 'smooth' }); }
+
+// ── Load data ──
+async function fetchCSV(path) {
+  const r = await fetch(path);
+  if (!r.ok) throw new Error('fetch failed: ' + path);
+  return r.text();
+}
+function parseCSV(text) {
+  return new Promise(res => Papa.parse(text, { header: true, skipEmptyLines: true, complete: r => res(r.data) }));
+}
+
+async function loadHome() {
+  try {
+    const [catText, topicQText, evtText, teText] = await Promise.all([
+      fetchCSV('data/category.csv'),
+      fetchCSV('data/topic_question.csv'),
+      fetchCSV('data/events.csv'),
+      fetchCSV('data/topic_event.csv').catch(() => ''),
+    ]);
+    const [cats, topicQs, evts] = await Promise.all([
+      parseCSV(catText), parseCSV(topicQText), parseCSV(evtText)
+    ]);
+
+    // Animate numbers
+    const topicCount = new Set(topicQs.map(r => (r.id || r.topic_id || '').trim()).filter(Boolean)).size;
+    animateCount('count-topics', topicCount, 1000);
+    animateCount('count-events', evts.length, 1000);
+
+    // Build question -> topic count
+    const qTopicCount = {};
+    topicQs.forEach(r => {
+      const qid = (r.question_id || '').trim();
+      const tid = (r.id || r.topic_id || '').trim();
+      if (!qid || !tid) return;
+      if (!qTopicCount[qid]) qTopicCount[qid] = new Set();
+      qTopicCount[qid].add(tid);
+    });
+
+    // Build categories
+    const catMap = {};
+    cats.forEach(r => {
+      const cat = r.category?.trim() || '';
+      const qid = r.question_id?.trim() || '';
+      if (!catMap[cat]) catMap[cat] = { questions: [] };
+      catMap[cat].questions.push({ question_id: qid, phrase: r.phrase || r.question || qid });
+    });
+
+    const catEntries = Object.entries(catMap).sort((a, b) => {
+      if (a[0] === 'อื่น ๆ') return 1;
+      if (b[0] === 'อื่น ๆ') return -1;
+      return new Set(b[1].questions.flatMap(q => [...(qTopicCount[q.question_id] || [])])).size
+           - new Set(a[1].questions.flatMap(q => [...(qTopicCount[q.question_id] || [])])).size;
+    });
+
+    const catHtml = catEntries.map(([catName, catData]) => {
+      const count = new Set(catData.questions.flatMap(q => [...(qTopicCount[q.question_id] || [])])).size;
+      const sortedSubs = [...catData.questions]
+        .map(q => ({ phrase: q.phrase, count: (qTopicCount[q.question_id] || new Set()).size, qid: q.question_id }))
+        .sort((a, b) => b.count - a.count).slice(0, 3);
+      const subsHtml = sortedSubs.map(s =>
+        `<a class="cat-card-sub" href="dashboard.html?cat=${encodeURIComponent(catName)}&q=${encodeURIComponent(s.qid)}"><span>${escHtml(s.phrase)}</span><div class="cat-card-sub-right"><span class="cat-card-sub-count">${s.count}</span><span class="cat-card-sub-arrow">→</span></div></a>`
+      ).join('');
+      return `<div class="cat-card">
+        <a class="cat-card-header" href="dashboard.html?cat=${encodeURIComponent(catName)}">
+          <div class="cat-card-top"><div class="cat-card-heading">${escHtml(catName)}</div><span class="cat-card-explore">สำรวจ →</span></div>
+          <div class="cat-card-count">${count} ข้อถกเถียง</div>
+        </a>
+        <div class="cat-card-subs">
+          <div class="cat-card-subs-label">ตัวอย่างประเด็นย่อย</div>
+          ${subsHtml}
+        </div>
+      </div>`;
+    }).join('');
+    document.getElementById('cat-list').innerHTML = catHtml;
+    document.getElementById('cat-count').textContent = `(${catEntries.length} หมวดหมู่)`;
+
+    // Event topic count
+    const evtTopicCount = {};
+    if (teText) {
+      const teRows = await parseCSV(teText);
+      teRows.forEach(r => {
+        const eid = (r.event_id || '').trim();
+        const tid = (r.topic_id || '').trim();
+        if (!eid || !tid) return;
+        if (!evtTopicCount[eid]) evtTopicCount[eid] = new Set();
+        evtTopicCount[eid].add(tid);
+      });
+    }
+
+    const sortedEvts = [...evts].filter(e => e.date).sort((a, b) => new Date(b.date) - new Date(a.date));
+    const latestDateEl = document.getElementById('latest-evt-date');
+    if (latestDateEl && sortedEvts.length) {
+      latestDateEl.textContent = `วงสนทนาล่าสุด: ${sortedEvts[0].date.substring(0, 10)}`;
+    }
+    const evtHtml = sortedEvts.map(e => {
+      const tags = (e.demographic_tag || '').split(',').map(t => t.trim()).filter(Boolean);
+      const tagsHtml = tags.map(t => `<span class="evt-tag">${escHtml(t)}</span>`).join('');
+      const count = (evtTopicCount[e.event_id] || new Set()).size;
+      const dateStr = e.date ? e.date.substring(0,10) : '';
+      const name = e.display_name || e.title_en || '';
+      return `<a class="evt-card" href="dashboard.html?evt=${encodeURIComponent(e.event_id)}">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:var(--space-2)">
+          <div class="evt-date">${escHtml(dateStr)}</div>
+          <span class="cat-card-explore" style="margin-top:0">สำรวจ →</span>
+        </div>
+        <div class="evt-name">${escHtml(name)}</div>
+        ${tags.length ? `<div style="margin-top:auto"><div style="font-size:0.65rem;color:var(--color-text-subtle);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:4px">ลักษณะผู้เข้าร่วม</div><div class="evt-tags">${tagsHtml}</div></div>` : `<div style="margin-top:auto"></div>`}
+        <div class="evt-count">${count} ข้อถกเถียง</div>
+      </a>`;
+    }).join('');
+    document.getElementById('evt-list').innerHTML = evtHtml || '<div style="color:var(--color-text-subtle)">ไม่มีข้อมูล</div>';
+    document.getElementById('evt-count').textContent = `(${sortedEvts.length} วงสนทนา)`;
+    document.getElementById('evt-all-btn').textContent = `ทั้งหมด (${sortedEvts.length})`;
+
+    // Demographic tags
+    const allTags = [...new Set(evts.flatMap(e => (e.demographic_tag || '').split(',').map(t => t.trim()).filter(Boolean)))].sort();
+    const tagEvtCount = {};
+    evts.forEach(e => {
+      (e.demographic_tag || '').split(',').map(t => t.trim()).filter(Boolean).forEach(t => {
+        tagEvtCount[t] = (tagEvtCount[t] || 0) + 1;
+      });
+    });
+    const demoHtml = allTags.map(t =>
+      `<a class="demo-card" href="dashboard.html?demo=${encodeURIComponent(t)}">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:var(--space-2)">
+          <div class="demo-card-name">${escHtml(t)}</div>
+          <span class="demo-card-arrow">→</span>
+        </div>
+        <div class="demo-card-count">${tagEvtCount[t] || 0} วงสนทนา</div>
+      </a>`
+    ).join('');
+    document.getElementById('demo-tags').innerHTML = demoHtml;
+
+  } catch(err) {
+    console.error('Home load error:', err);
+  }
+}
+
+// ── Intersection Observer for counter animation ──
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      loadHome();
+      observer.disconnect();
+    }
+  });
+}, { threshold: 0.2 });
+const landingEl = document.getElementById('landing');
+if (landingEl) observer.observe(landingEl);
+else loadHome();
+</script>
+<footer class="site-footer">
+  <div class="site-footer__inner">
+    <div class="site-footer__brand">
+      <img src="images/dream-con-logo-white.svg" alt="DREAMCON" class="site-footer__logo">
+    </div>
+    <nav class="site-footer__links">
+      <a href="index.html">หน้าหลัก</a>
+      <a href="dashboard.html">ข้อถกเถียง</a>
+      <a href="about.html">เกี่ยวกับ</a>
+    </nav>
+    <div class="site-footer__contact">
+      <span>ติดต่อ</span>
+      <a href="mailto:contact@wevis.info">contact@wevis.info</a>
+    </div>
+  </div>
+</footer>
+<script src="js/nav.js" charset="utf-8"></script>
+</body>
+</html>
