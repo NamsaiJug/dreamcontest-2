@@ -414,7 +414,7 @@ function renderEventSidebar() {
   // Result label — mirrors event breadcrumb text
   let resultText = '';
   if (state.selectedDemographicTags.size > 0) {
-    const tagList = [...state.selectedDemographicTags].join(' ');
+    const tagList = [...state.selectedDemographicTags].join(' | ');
     resultText = `ทุกวงสนทนาที่มี ${tagList}`;
   } else if (state.selectedEvtId) {
     const evt = state.events[state.selectedEvtId] || {};
@@ -447,8 +447,12 @@ function renderEventSidebar() {
       })
     : evts;
 
-  // Sort filtered events by date descending (newest first)
+  // Sort: selected event always first, then by date descending (newest first)
   filteredEvts.sort((a, b) => {
+    const aSelected = a.event_id === state.selectedEvtId;
+    const bSelected = b.event_id === state.selectedEvtId;
+    if (aSelected && !bSelected) return -1;
+    if (bSelected && !aSelected) return 1;
     const da = a.date ? new Date(a.date) : new Date(0);
     const db = b.date ? new Date(b.date) : new Date(0);
     return db - da;
@@ -463,7 +467,7 @@ function renderEventSidebar() {
     const domId = `evt-${eid}`;
     const isOpen = state.selectedEvtId === eid;
     const topicCount = (state.eventTopics[eid] || []).length;
-    const dateStr = evt.date ? evt.date.substring(0, 10) : '';
+    const dateStr = evt.date ? formatThaiDate(evt.date) : '';
     const titleEn = evt.title_en || evt.display_name || eid;
     const loc = evt.location || '';
     const group = evt.target_group || '';
@@ -660,7 +664,7 @@ function renderTopics() {
       <div class="topics-count">แสดง <strong>${filtered.length}</strong> จากทั้งหมด ${state.topics.length} ข้อถกเถียง</div>
       <div style="display:flex;align-items:center;gap:var(--space-2)">
         <span style="font-size:var(--font-size-xs);color:var(--color-text-muted);white-space:nowrap">เรียงตาม</span>
-        <select class="sort-select" onchange="handleSort(this.value)" id="sort-select">        <option value="most_commented" ${state.sort === 'most_commented' ? 'selected' : ''}>จำนวนเหตุผล</option>
+        <select class="sort-select" onchange="handleSort(this.value)" id="sort-select">        <option value="most_commented" ${state.sort === 'most_commented' ? 'selected' : ''}>จำนวนความคิดเห็น</option>
         <option value="most_agreed" ${state.sort === 'most_agreed' ? 'selected' : ''}>จำนวนเห็นด้วย</option>
         <option value="most_disagreed_partial" ${state.sort === 'most_disagreed_partial' ? 'selected' : ''}>จำนวนเห็นด้วยบางส่วนหรือไม่เห็นด้วย</option>
         ${state.selectedQId ? `<option value="distance_to_question" ${state.sort === 'distance_to_question' ? 'selected' : ''}>ความเกี่ยวข้องกับประเด็นที่เลือก</option>` : ''}
@@ -673,7 +677,7 @@ function renderTopics() {
       <span style="display:flex;align-items:center;gap:5px"><span style="display:inline-block;width:15px;height:15px;border-radius:50%;background:var(--color-partial-light);border:1px solid rgba(0,0,0,0.08)"></span>เห็นด้วยบางส่วน</span>
       <span style="display:flex;align-items:center;gap:5px"><span style="display:inline-block;width:15px;height:15px;border-radius:50%;background:var(--color-disagree-light);border:1px solid rgba(0,0,0,0.08)"></span>ไม่เห็นด้วย</span>
       <span style="color:var(--color-text-subtle)">|</span>
-      <span style="display:flex;align-items:center;gap:5px"><span style="position:relative;display:inline-flex;align-items:center;justify-content:center;width:15px;height:15px;border-radius:50%;background:transparent;border:1.5px solid rgba(0,0,0,0.35)"><span style="position:absolute;font-size:10px;line-height:1;color:rgba(0,0,0,0.45);font-weight:700">+</span></span>เหตุผลที่มีการต่อยอด</span>
+      <span style="display:flex;align-items:center;gap:5px"><span style="position:relative;display:inline-flex;align-items:center;justify-content:center;width:15px;height:15px;border-radius:50%;background:transparent;border:1.5px solid rgba(0,0,0,0.35)"><span style="position:absolute;font-size:10px;line-height:1;color:rgba(0,0,0,0.45);font-weight:700">+</span></span>ความคิดเห็นที่มีการต่อยอด</span>
       <span style="color:var(--color-text-subtle)">|</span>
       <button onclick="showHowToRead()" style="background:none;border:none;font-family:var(--font-body);font-size:var(--font-size-xs);color:var(--color-accent);cursor:pointer;padding:0;text-decoration:underline">เกี่ยวกับข้อมูล</button>
     </div>
@@ -702,7 +706,7 @@ function renderTopics() {
         <div class="topic-title">${titleHtml}</div>
       </div>
       <div class="topic-card-bottom">
-        <div class="total-comments">${depth0Total}<span style="color:#979797"> เหตุผล</span></div>
+        <div class="total-comments">${depth0Total}<span style="color:#979797"> ความคิดเห็น</span></div>
         ${depth0Total === 0 ? '' : `<div class="circle-bar-wrap">${buildCircleBars(t.id)}</div>`}
         ${excerpt ? `<div style="font-size:var(--font-size-xs);color:var(--color-text-muted);line-height:1.5;margin-top:var(--space-2)">${excerpt}</div>` : ''}
       </div>
@@ -912,7 +916,7 @@ function updateBreadcrumb() {
   const evtEl = document.getElementById('breadcrumb-evt-text');
   if (evtEl) {
     if (state.selectedDemographicTags.size > 0) {
-      const tagList = [...state.selectedDemographicTags].map(t => escHtml(t)).join(' ');
+      const tagList = [...state.selectedDemographicTags].map(t => escHtml(t)).join(' | ');
       evtEl.innerHTML = `<span style="color:var(--color-text-subtle);font-weight:400">ทุกวงสนทนาที่มี</span> <span class="breadcrumb-active">${tagList}</span>`;
     } else if (state.selectedEvtId) {
       const evt = state.events[state.selectedEvtId] || {};
@@ -1059,7 +1063,7 @@ function buildEventTooltip(eid, style) {
   if (e.display_name) tooltipRows.push(`<div class="evt-tooltip-row"><div class="evt-tooltip-label">ชื่อวงสนทนา</div><div>${escHtml(e.display_name)}</div></div>`);
   if (e.title_en)     tooltipRows.push(`<div class="evt-tooltip-row"><div class="evt-tooltip-label">Title (EN)</div><div>${escHtml(e.title_en)}</div></div>`);
   if (e.location)     tooltipRows.push(`<div class="evt-tooltip-row"><div class="evt-tooltip-label">สถานที่</div><div>${escHtml(e.location)}</div></div>`);
-  if (e.date)         tooltipRows.push(`<div class="evt-tooltip-row"><div class="evt-tooltip-label">วันที่</div><div>${e.date.substring(0,10)}</div></div>`);
+  if (e.date)         tooltipRows.push(`<div class="evt-tooltip-row"><div class="evt-tooltip-label">วันที่</div><div>${formatThaiDate(e.date)}</div></div>`);
   if (e.target_group) tooltipRows.push(`<div class="evt-tooltip-row"><div class="evt-tooltip-label">กลุ่มเป้าหมาย</div><div>${escHtml(e.target_group)}</div></div>`);
   if (e.participants) tooltipRows.push(`<div class="evt-tooltip-row"><div class="evt-tooltip-label">ผู้เข้าร่วม</div><div>${escHtml(e.participants)} คน</div></div>`);
   if (e.description)  tooltipRows.push(`<div class="evt-tooltip-row"><div class="evt-tooltip-label">รายละเอียด</div><div>${escHtml(e.description)}</div></div>`);
@@ -1274,7 +1278,7 @@ function renderCommentTree(comments, depth) {
   const defaultView = activeGroups[0].view;
   const contextLabel = depth === 0
     ? `<span style="font-size:var(--font-size-xs);color:var(--color-text-muted)">กับข้อถกเถียงนี้</span>`
-    : `<span style="font-size:var(--font-size-xs);color:var(--color-text-muted)">กับเหตุผลนี้</span>`;
+    : `<span style="font-size:var(--font-size-xs);color:var(--color-text-muted)">กับความคิดเห็นนี้</span>`;
 
   // Tab bar
   const colorKey = v => v === 'เห็นด้วย' ? 'agree' : v === 'เห็นด้วยบางส่วน' ? 'partial' : 'disagree';

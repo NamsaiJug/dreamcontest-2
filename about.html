@@ -87,8 +87,8 @@ section:last-of-type { border-bottom: none; }
 
       <div class="data-subsection">
         <h3 class="sub-heading">โครงสร้างข้อมูล</h3>
-        <img src="images/data_structure.png" alt="โครงสร้างข้อมูล">
-        <p class="body-text">ข้อมูลแพลตฟอร์มนี้เป็นเสมือนต้นไม้ของเหตุผล ประกอบไปด้วย <strong style="color:var(--color-text)">ข้อถกเถียง</strong> และ <strong style="color:var(--color-text)">เหตุผล</strong></p>
+        <img src="images/data_structure.png?v=1789470376" alt="โครงสร้างข้อมูล">
+        <p class="body-text">ข้อมูลแพลตฟอร์มนี้เป็นเสมือนต้นไม้ของความคิดเห็น ประกอบไปด้วย <strong style="color:var(--color-text)">ข้อถกเถียง</strong> และ <strong style="color:var(--color-text)">ความคิดเห็น</strong></p>
         <ul style="list-style:none;padding:0">
           <li style="display:flex;gap:var(--space-3);align-items:flex-start;margin-bottom:var(--space-3)">
             <span>•</span>
@@ -97,13 +97,24 @@ section:last-of-type { border-bottom: none; }
           <li style="display:flex;gap:var(--space-3);align-items:flex-start">
             <span>•</span>
             <span>
-              <strong style="color:var(--color-text)">เหตุผล</strong> คือ กิ่งก้านสาขา เป็นข้อความแสดงเหตุผลตอบโต้ข้อถกเถียงใดข้อถกเถียงหนึ่ง ซึ่งอาจเป็นเหตุผลที่ <strong>เห็นด้วย</strong> <strong>เห็นด้วยบางส่วน</strong> (หมายถึง เห็นด้วยแต่มีเงื่อนไขหรือข้อกังวลบางอย่าง) หรือ <strong>ไม่เห็นด้วย</strong> ต่อข้อถกเถียงนั้นๆ
+              <strong style="color:var(--color-text)">ความคิดเห็น</strong> คือ กิ่งก้านสาขา เป็นข้อความแสดงความคิดเห็นตอบโต้ข้อถกเถียงใดข้อถกเถียงหนึ่ง ซึ่งอาจเป็นความคิดเห็นที่ <strong>เห็นด้วย</strong> <strong>เห็นด้วยบางส่วน</strong> (หมายถึง เห็นด้วยแต่มีเงื่อนไขหรือข้อกังวลบางอย่าง) หรือ <strong>ไม่เห็นด้วย</strong> ต่อข้อถกเถียงนั้นๆ
               <ul style="list-style:none;padding:0;margin-top:var(--space-2)">
-                <li style="display:flex;gap:var(--space-2);align-items:flex-start;padding-left:var(--space-4)"><span>–</span><span>เหตุผลหนึ่งสามารถมีเหตุผลอื่นๆ ต่อยอดได้ โดยอาจเป็นเหตุผลที่ <strong>เห็นด้วย</strong> <strong>เห็นด้วยบางส่วน</strong> หรือ <strong>ไม่เห็นด้วย</strong> ต่อเหตุผลนั้นๆ</span></li>
+                <li style="display:flex;gap:var(--space-2);align-items:flex-start;padding-left:var(--space-4)"><span>–</span><span>ความคิดเห็นหนึ่งสามารถมีความคิดเห็นอื่นๆ ต่อยอดได้ โดยอาจเป็นความคิดเห็นที่ <strong>เห็นด้วย</strong> <strong>เห็นด้วยบางส่วน</strong> หรือ <strong>ไม่เห็นด้วย</strong> ต่อความคิดเห็นนั้นๆ</span></li>
               </ul>
             </span>
           </li>
         </ul>
+        <div style="background:var(--color-surface-alt);border-radius:var(--radius-md);padding:var(--space-4) var(--space-5)">
+          <div style="font-size:var(--font-size-xs);font-weight:600;color:var(--color-text-subtle);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:var(--space-3)">เช่น</div>
+          <div style="font-size:var(--font-size-sm);color:var(--color-text-muted);line-height:1.75;margin-bottom:var(--space-3)"><strong style="color:var(--color-text)">ข้อถกเถียง:</strong> สสร. ควรมาจากการเลือกตั้ง 100%</div>
+          <div style="font-size:var(--font-size-sm);color:var(--color-text-muted);line-height:1.75">
+            <strong style="color:var(--color-text)">ความคิดเห็น:</strong>
+            <div style="margin-top:var(--space-2);display:flex;flex-direction:column;gap:var(--space-2)">
+              <div><strong>เห็นด้วย</strong> - จะได้รับประกันว่ารัฐธรรมนูญจะมีความยึดโยงกับประชาชน</div>
+              <div><strong>เห็นด้วยบางส่วน</strong> - ควรมีบางส่วนมาจากการแต่งตั้งตามความเชี่ยวชาญ เพื่อรับประกันความสามารถของผู้ร่าง</div>
+            </div>
+          </div>
+        </div>
       </div>
 
       <div class="data-subsection">
@@ -114,7 +125,7 @@ section:last-of-type { border-bottom: none; }
           <li><strong style="color:var(--color-text)">เรียบเรียงและจัดระเบียบบทสนทนา</strong>
             <ul style="list-style:disc;padding-left:var(--space-5)">
               <li>เมื่อจบวงสนทนา ผู้จดบันทึกบทสนทนาจะนำข้อมูลมาเรียบเรียงใหม่ตามโครงสร้างของเว็บไซต์ และกรอกข้อมูลเข้าสู่ระบบหลังบ้าน</li>
-              <li>เนื่องจากการสนทนาตามธรรมชาติมักไม่ได้มีโครงสร้างตายตัว คำพูดที่เกิดขึ้นในวงสนทนาจึงไม่ได้ถูกนำมาแสดงบนเว็บไซต์แบบตรงไปตรงมา แต่จะถูกเรียบเรียงและจัดระเบียบใหม่ โดยคำพูดที่ไม่ได้มีลักษณะเป็นข้อถกเถียงหรือเหตุผลประกอบข้อถกเถียง จะไม่ถูกนำมาแสดงบนเว็บไซต์</li>
+              <li>เนื่องจากการสนทนาตามธรรมชาติมักไม่ได้มีโครงสร้างตายตัว คำพูดที่เกิดขึ้นในวงสนทนาจึงไม่ได้ถูกนำมาแสดงบนเว็บไซต์แบบตรงไปตรงมา แต่จะถูกเรียบเรียงและจัดระเบียบใหม่ โดยคำพูดที่ไม่ได้มีลักษณะเป็นข้อถกเถียงหรือความคิดเห็นประกอบข้อถกเถียง จะไม่ถูกนำมาแสดงบนเว็บไซต์</li>
             </ul>
           </li>
           <li><strong style="color:var(--color-text)">กรอกข้อมูลเข้าสู่ระบบ</strong>
@@ -140,7 +151,7 @@ section:last-of-type { border-bottom: none; }
         <div class="data-caution">
           <p>ข้อมูลในแพลตฟอร์มนี้ <strong style="color:var(--color-text)">ไม่ใช่ผลสำรวจความคิดเห็น (Poll)</strong> เนื่องจากไม่ได้ใช้กระบวนการสุ่มตัวอย่างตามหลักการวิจัย และคำตอบส่วนใหญ่มีลักษณะเป็นคำตอบปลายเปิด</p>
           <p>ดังนั้น <strong style="color:var(--color-text)">'จำนวน'</strong> ต่าง ๆ ที่ปรากฏในเว็บไซต์ จึงไม่สามารถนำไปใช้อ้างอิงเพื่อสะท้อนความคิดเห็นของประชาชนทั้งประเทศได้</p>
-          <p>บทบาทของข้อมูลเชิงปริมาณในระบบ คือการช่วย <strong style="color:var(--color-text)">ชี้ให้เห็นประเด็นที่มีการถกเถียงและมุมมองที่หลากหลาย</strong> เพื่อให้ผู้ใช้งานสามารถลงลึกไปสำรวจเหตุผลและมุมมองที่แตกต่างกันได้ต่อไป</p>
+          <p>บทบาทของข้อมูลเชิงปริมาณในระบบ คือการช่วย <strong style="color:var(--color-text)">ชี้ให้เห็นประเด็นที่มีการถกเถียงและมุมมองที่หลากหลาย</strong> เพื่อให้ผู้ใช้งานสามารถลงลึกไปสำรวจความคิดเห็นและมุมมองที่แตกต่างกันได้ต่อไป</p>
         </div>
       </div>
 
@@ -233,11 +244,11 @@ section:last-of-type { border-bottom: none; }
     <ul style="font-size:var(--font-size-sm);color:var(--color-text-muted);line-height:1.75;padding-left:var(--space-5);margin-bottom:var(--space-6);display:flex;flex-direction:column;gap:2px">
       <li>category.csv — หมวดหมู่และประเด็นย่อย</li>
       <li>topics.csv — ข้อถกเถียงทั้งหมด</li>
-      <li>comments.csv — เหตุผลทั้งหมด</li>
+      <li>comments.csv — ความคิดเห็นทั้งหมด</li>
       <li>events.csv — วงสนทนา</li>
       <li>topic_question.csv — ความเชื่อมโยงข้อถกเถียงกับประเด็น</li>
       <li>topic_event.csv — ความเชื่อมโยงข้อถกเถียงกับวงสนทนา</li>
-      <li>comment_event.csv — ความเชื่อมโยงเหตุผลกับวงสนทนา</li>
+      <li>comment_event.csv — ความเชื่อมโยงความคิดเห็นกับวงสนทนา</li>
     </ul>
     <div style="display:flex;gap:var(--space-3);justify-content:flex-end">
       <button onclick="closeDownloadModal()" style="padding:8px 20px;background:none;border:1px solid var(--color-border-strong);border-radius:var(--radius-md);font-family:var(--font-body);font-size:var(--font-size-sm);color:var(--color-text-muted);cursor:pointer">ยกเลิก</button>

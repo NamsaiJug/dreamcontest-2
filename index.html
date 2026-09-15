@@ -168,14 +168,14 @@ section { padding: calc(var(--space-8)*2) 0; }
 <section id="about-data">
   <div class="section-inner">
     <div class="about-data-grid">
-      <img src="images/data_structure.png" alt="โครงสร้างข้อมูล" class="about-data-img">
+      <img src="images/data_structure.png?v=1789470376" alt="โครงสร้างข้อมูล" class="about-data-img">
       <div class="about-data-text">
         <h2 class="section-heading">ความหลากหลายของมุมมอง คือหัวใจสำคัญของโครงการนี้</h2>
         <p class="about-data-desc">เรานำข้อถกเถียงจากแต่ละวงสนทนามาเรียบเรียงและจัดโครงสร้างให้เป็นระบบ โดยหวังว่าช่วยให้ผู้ที่มีส่วนในการร่างรัฐธรรมนูญสามารถพิจารณาทางเลือกต่างๆ ได้รอบด้านมากขึ้น และนำไปสู่การพูดคุยเพื่อหาข้อตกลงร่วมกัน</p>
         <div style="border-left:3px solid var(--color-border-strong);padding-left:var(--space-4)">
           <div style="font-size:var(--font-size-xs);font-weight:600;color:var(--color-text-subtle);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:var(--space-2)">ข้อควรระวังในการตีความข้อมูล</div>
           <p style="font-size:var(--font-size-xs);color:var(--color-text-subtle);line-height:1.75;margin-bottom:var(--space-2)">ข้อมูลในแพลตฟอร์มนี้ ไม่ใช่ผลสำรวจความคิดเห็น (Poll) เนื่องจากไม่ได้ใช้กระบวนการสุ่มตัวอย่างตามหลักการวิจัย และคำตอบส่วนใหญ่มีลักษณะเป็นคำตอบปลายเปิด</p>
-          <p style="font-size:var(--font-size-xs);color:var(--color-text-subtle);line-height:1.75;margin:0">'จำนวน' ต่าง ๆ ที่ปรากฏในเว็บไซต์ จึงไม่สามารถนำไปใช้อ้างอิงเพื่อสะท้อนความคิดเห็นของประชาชนทั้งประเทศได้</p>
+          <p style="font-size:var(--font-size-xs);color:var(--color-text-subtle);line-height:1.75;margin:0"><strong>'จำนวน'</strong> ต่าง ๆ ที่ปรากฏในเว็บไซต์ จึงไม่สามารถนำไปใช้อ้างอิงเพื่อสะท้อนความคิดเห็นของประชาชนทั้งประเทศได้</p>
         </div>
         <div><a class="btn-secondary" href="about.html#about-data">อ่านรายละเอียดเกี่ยวกับข้อมูล →</a></div>
       </div>
@@ -234,7 +234,7 @@ section { padding: calc(var(--space-8)*2) 0; }
     <div class="collab-columns">
       <div class="collab-col">
         <div style="font-size:1.75rem;margin-bottom:var(--space-2)">🤝</div>
-        <div class="collab-col-title">เป็นพาร์ทเนอร์กับ WeVis เพื่อจัดวงสนทนา</div>
+        <div class="collab-col-title">เป็นพาร์ตเนอร์กับ WeVis เพื่อจัดวงสนทนา</div>
         <div class="collab-col-body">สามารถติดต่อได้ที่ <a href="mailto:contact@wevis.info">contact@wevis.info</a></div>
       </div>
       <div class="collab-divider"></div>
@@ -309,11 +309,11 @@ section { padding: calc(var(--space-8)*2) 0; }
       <img class="contributor-logo" src="images/hand-logo-black.svg" alt="Hand">
       <img class="contributor-logo" src="images/tij-logo-black.svg" alt="TIJ">
     </div>
-    <a class="btn-secondary" href="about.html">อ่านรายละเอียดเพิ่มเติมเกี่ยวกับโครงการ →</a>
+    <a class="btn-secondary" href="about.html">อ่านรายละเอียดเกี่ยวกับโครงการ →</a>
   </div>
 </section>
 
-<script src="js/utils.js" charset="utf-8"></script>
+<script src="js/utils.js?v=1" charset="utf-8"></script>
 <script>
 // ── Animate counter ──
 function animateCount(elId, target, duration) {
@@ -425,13 +425,13 @@ async function loadHome() {
     const sortedEvts = [...evts].filter(e => e.date).sort((a, b) => new Date(b.date) - new Date(a.date));
     const latestDateEl = document.getElementById('latest-evt-date');
     if (latestDateEl && sortedEvts.length) {
-      latestDateEl.textContent = `วงสนทนาล่าสุด: ${sortedEvts[0].date.substring(0, 10)}`;
+      latestDateEl.textContent = `วงสนทนาล่าสุด: ${formatThaiDate(sortedEvts[0].date)}`;
     }
     const evtHtml = sortedEvts.map(e => {
       const tags = (e.demographic_tag || '').split(',').map(t => t.trim()).filter(Boolean);
       const tagsHtml = tags.map(t => `<span class="evt-tag">${escHtml(t)}</span>`).join('');
       const count = (evtTopicCount[e.event_id] || new Set()).size;
-      const dateStr = e.date ? e.date.substring(0,10) : '';
+      const dateStr = e.date ? formatThaiDate(e.date) : '';
       const name = e.display_name || e.title_en || '';
       return `<a class="evt-card" href="dashboard.html?evt=${encodeURIComponent(e.event_id)}">
         <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:var(--space-2)">
