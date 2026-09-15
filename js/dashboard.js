@@ -1068,9 +1068,12 @@ function buildEventTooltip(eid, style) {
   return `<span class="evt-info-wrap"${styleAttr} data-tooltip-html="${escAttr(tooltipHtml)}"><span style="text-decoration:underline;cursor:pointer;color:inherit" onclick="filterByEventFromDetail('${escAttr(eid)}')">${escHtml(title)}</span></span>`;
 }
 
+let currentDetailTopicId = null;
+
 function openDetail(topicId) {
   const topic = state.topics.find(t => t.id === topicId);
   if (!topic) return;
+  currentDetailTopicId = topicId;
 
   const qLinks = state.topicQuestions[topic.id] || [];
   const firstQId = qLinks.length ? qLinks[0].question_id : '';
@@ -1194,6 +1197,26 @@ function showHowToRead() {
 function closeHowToRead() {
   const el = document.getElementById('how-to-read-overlay');
   if (el) { el.style.display = 'none'; document.body.style.overflow = ''; }
+}
+
+function copyTopicLink() {
+  if (!currentDetailTopicId) return;
+  const url = new URL(window.location.href);
+  url.searchParams.set('topic', currentDetailTopicId);
+  const btn = document.getElementById('detail-copy-btn');
+  navigator.clipboard.writeText(url.toString()).then(() => {
+    if (!btn) return;
+    const orig = btn.innerHTML;
+    btn.innerHTML = '✓ คัดลอกลิงก์แล้ว';
+    setTimeout(() => { btn.innerHTML = orig; }, 2000);
+  }).catch(() => {
+    const ta = document.createElement('textarea');
+    ta.value = url.toString();
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+  });
 }
 
 function filterByEventFromDetail(evtId) {
