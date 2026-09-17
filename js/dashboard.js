@@ -474,6 +474,8 @@ function renderEventSidebar() {
     const participants = evt.participants || '';
     const desc = evt.description || '';
     const newsLink = evt.news_link || '';
+    const organizer = evt.organizer || '';
+    const eventDetailUrl = evt.event_detail || '';
 
     const tags = (evt.demographic_tag || '').split(',').map(t => t.trim()).filter(Boolean);
     const tagsHtml = tags.length
@@ -496,9 +498,11 @@ function renderEventSidebar() {
         <div class="evt-detail">
           ${loc ? `<div style="margin-bottom:6px"><strong>สถานที่</strong>${escHtml(loc)}</div>` : ''}
           ${group ? `<div style="margin-bottom:6px"><strong>กลุ่มเป้าหมาย</strong>${escHtml(group)}</div>` : ''}
+          ${organizer ? `<div style="margin-bottom:6px"><strong>ผู้จัด</strong>${escHtml(organizer)}</div>` : ''}
           ${participants ? `<div style="margin-bottom:6px"><strong>ผู้เข้าร่วม</strong>${escHtml(participants)} คน</div>` : ''}
           ${desc ? `<div style="margin-bottom:6px"><strong>รายละเอียด</strong>${escHtml(desc.substring(0, 200))}${desc.length > 200 ? '...' : ''}</div>` : ''}
           ${newsLink ? `<a class="evt-news-link" href="${escAttr(newsLink)}" target="_blank" rel="noopener">🔗 อ่านข่าวเพิ่มเติม</a>` : ''}
+          ${eventDetailUrl ? `<a class="evt-news-link" href="${escAttr(eventDetailUrl)}" target="_blank" rel="noopener" style="display:block;margin-top:4px">📄 เอกสารกำหนดการ ตารางกิจกรรม</a>` : ''}
         </div>
       </div>
     </div>`;
@@ -1065,8 +1069,10 @@ function buildEventTooltip(eid, style) {
   if (e.location)     tooltipRows.push(`<div class="evt-tooltip-row"><div class="evt-tooltip-label">สถานที่</div><div>${escHtml(e.location)}</div></div>`);
   if (e.date)         tooltipRows.push(`<div class="evt-tooltip-row"><div class="evt-tooltip-label">วันที่</div><div>${formatThaiDate(e.date)}</div></div>`);
   if (e.target_group) tooltipRows.push(`<div class="evt-tooltip-row"><div class="evt-tooltip-label">กลุ่มเป้าหมาย</div><div>${escHtml(e.target_group)}</div></div>`);
+  if (e.organizer)    tooltipRows.push(`<div class="evt-tooltip-row"><div class="evt-tooltip-label">ผู้จัด</div><div>${escHtml(e.organizer)}</div></div>`);
   if (e.participants) tooltipRows.push(`<div class="evt-tooltip-row"><div class="evt-tooltip-label">ผู้เข้าร่วม</div><div>${escHtml(e.participants)} คน</div></div>`);
   if (e.description)  tooltipRows.push(`<div class="evt-tooltip-row"><div class="evt-tooltip-label">รายละเอียด</div><div>${escHtml(e.description)}</div></div>`);
+  if (e.event_detail)  tooltipRows.push(`<div class="evt-tooltip-row"><div class="evt-tooltip-label">เอกสารกำหนดการ ตารางกิจกรรม</div><div><a href="${escAttr(e.event_detail)}" target="_blank" rel="noopener" style="color:var(--color-accent)">🔗 เปิดเอกสาร</a></div></div>`);
   const tooltipHtml = `<div style="font-size:0.6875rem;color:var(--color-text-subtle);margin-bottom:var(--space-3)">คลิกชื่อเพื่อดูข้อถกเถียงทั้งหมดจากวงสนทนานี้ (${topicCount})</div>` + tooltipRows.join('');
   const styleAttr = style ? ` style="${style}"` : '';
   return `<span class="evt-info-wrap"${styleAttr} data-tooltip-html="${escAttr(tooltipHtml)}"><span style="text-decoration:underline;cursor:pointer;color:inherit" onclick="filterByEventFromDetail('${escAttr(eid)}')">${escHtml(title)}</span></span>`;
@@ -1411,9 +1417,10 @@ _tt.style.position = 'fixed';
 _tt.style.zIndex = '9999';
 document.body.appendChild(_tt);
 
-document.addEventListener('mouseenter', e => {
-  const wrap = e.target.closest('.evt-info-wrap');
-  if (!wrap) return;
+let _ttHideTimer = null;
+
+function _showTooltipFor(wrap) {
+  clearTimeout(_ttHideTimer);
   const content = wrap.dataset.tooltipHtml;
   if (!content) return;
   const rect = wrap.getBoundingClientRect();
@@ -1429,13 +1436,27 @@ document.addEventListener('mouseenter', e => {
     _tt.style.top = (rect.bottom + 6) + 'px';
   }
   _tt.style.left = Math.min(rect.left, window.innerWidth - 330) + 'px';
+}
+
+function _scheduleHideTooltip() {
+  clearTimeout(_ttHideTimer);
+  // Small delay so the cursor has time to travel from the wrap into the tooltip
+  _ttHideTimer = setTimeout(() => { _tt.style.display = 'none'; }, 150);
+}
+
+document.addEventListener('mouseenter', e => {
+  const wrap = e.target.closest('.evt-info-wrap');
+  if (wrap) { _showTooltipFor(wrap); return; }
 }, true);
 
 document.addEventListener('mouseleave', e => {
   const wrap = e.target.closest('.evt-info-wrap');
-  if (!wrap) return;
-  if (!wrap.contains(e.relatedTarget)) _tt.style.display = 'none';
+  if (wrap && !wrap.contains(e.relatedTarget)) _scheduleHideTooltip();
 }, true);
+
+// Keep tooltip open while hovering it, and close it once the cursor truly leaves
+_tt.addEventListener('mouseenter', () => clearTimeout(_ttHideTimer));
+_tt.addEventListener('mouseleave', () => _scheduleHideTooltip());
 
 // Init
 // Init
