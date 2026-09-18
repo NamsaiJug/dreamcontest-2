@@ -231,26 +231,38 @@
 .cat-item.open .cat-body { display: block; }
 
 .q-item {
-  padding: var(--space-2) var(--space-3);
+  padding: 10px 12px;
   cursor: pointer;
-  transition: background var(--transition);
+  transition: all 0.15s ease;
   border-radius: var(--radius-md);
-  margin-bottom: var(--space-1);
-  background: transparent;
-  border: none;
+  margin-bottom: 6px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-sidebar-border);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.04);
   display: flex;
   flex-direction: column;
 }
 
-.q-item:hover { background: rgba(0,80,140,0.07); }
+.q-item:last-child { margin-bottom: 0; }
 
-.q-item.active {
-  background: #6EB7FE;
-  border: 1px solid #6EB7FE;
+.q-item:hover {
+  border-color: var(--color-accent);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  transform: translateY(-1px);
 }
 
-.q-item.active .q-item-text { color: #0d2a3d; font-weight: 500; }
-.q-item.active .q-item-count { color: rgba(13,42,61,0.70); }
+.q-item:hover .q-item-arrow { opacity: 1; color: var(--color-accent); }
+
+.q-item.active {
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+  box-shadow: 0 2px 10px rgba(42,92,138,0.28);
+  transform: none;
+}
+
+.q-item.active .q-item-text { color: white; font-weight: 500; }
+.q-item.active .q-item-count { color: rgba(255,255,255,0.75); }
+.q-item.active .q-item-arrow { color: white; opacity: 1; }
 
 .q-item-text {
   font-size: var(--font-size-md);
@@ -264,6 +276,14 @@
   color: var(--color-sidebar-muted);
   white-space: nowrap;
   padding-top: 2px;
+  flex-shrink: 0;
+}
+
+.q-item-arrow {
+  font-size: var(--font-size-xs);
+  color: var(--color-sidebar-muted);
+  opacity: 0.4;
+  transition: all 0.15s ease;
   flex-shrink: 0;
 }
 
@@ -667,4 +687,10 @@
   #sidebar-backdrop.open { display: block; }
   #sidebar-toggle { display: inline-flex !important; }
   #main { width: 100%; }
+}
+
+/* Subtle pulse to draw attention to the sort help icon a few times, then settle */
+@keyframes sortHelpPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(42,92,138,0.35); }
+  50% { box-shadow: 0 0 0 4px rgba(42,92,138,0); }
 }

@@ -12,10 +12,11 @@
 <link rel="stylesheet" href="css/base.css">
 <link rel="stylesheet" href="css/nav.css?v=3">
 <style>
+html { scroll-behavior: smooth; }
 html, body { min-height: 100%; overflow-x: hidden; }
 
 /* ── Layout ── */
-section { padding: calc(var(--space-8)*2) 0; }
+section { padding: calc(var(--space-8)*2) 0; scroll-margin-top: 70px; }
 .section-inner { max-width: 1200px; width: 80vw; margin: 0 auto; }
 .section-heading { font-family: var(--font-display); font-weight: var(--font-display-weight); font-size: var(--font-size-2xl); color: var(--color-text); margin-bottom: var(--space-5); line-height: 1.25; }
 .section-sub { font-size: var(--font-size-sm); color: var(--color-text-subtle); text-transform: uppercase; letter-spacing: 0.08em; font-weight: 600; margin-bottom: var(--space-3); }
@@ -160,7 +161,10 @@ section { padding: calc(var(--space-8)*2) 0; }
       </div>
     </div>
     <div id="latest-evt-date" style="font-size:var(--font-size-xs);color:var(--color-text-subtle);margin-bottom:var(--space-6)"></div>
-    <a class="btn-primary" href="dashboard.html">สำรวจข้อถกเถียง →</a>
+    <div style="display:flex;gap:var(--space-3);flex-wrap:wrap;justify-content:center">
+      <a class="btn-primary" href="dashboard.html">สำรวจข้อถกเถียง →</a>
+      <a class="btn-secondary" href="#about-data">เข้าใจโครงการ ⬇️</a>
+    </div>
   </div>
 </section>
 

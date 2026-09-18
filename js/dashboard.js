@@ -390,7 +390,7 @@ function renderCategorySidebar() {
           const qTopicCount = (state.questionTopics[q.question_id] || []).length;
           return `<div class="q-item ${state.selectedQId === q.question_id ? 'active' : ''}" data-qid="${escAttr(q.question_id)}" onclick="selectQuestion('${escAttr(q.question_id)}', '${escAttr(catName)}')">
             <div class="q-item-text"><span style="margin-right:4px;opacity:0.5">${qIdx + 1}.</span>${escHtml(q.phrase || q.question)}</div>
-            <div style="display:flex;justify-content:flex-end;margin-top:4px"><div class="q-item-count">${qTopicCount} ข้อถกเถียง</div></div>
+            <div style="display:flex;justify-content:flex-end;align-items:center;gap:6px;margin-top:4px"><div class="q-item-count">${qTopicCount} ข้อถกเถียง</div><span class="q-item-arrow">→</span></div>
           </div>`;
         }).join('')}
       </div>
@@ -673,7 +673,7 @@ function renderTopics() {
         <option value="most_disagreed_partial" ${state.sort === 'most_disagreed_partial' ? 'selected' : ''}>จำนวนเห็นด้วยบางส่วนหรือไม่เห็นด้วย</option>
         ${state.selectedQId ? `<option value="distance_to_question" ${state.sort === 'distance_to_question' ? 'selected' : ''}>ความเกี่ยวข้องกับประเด็นที่เลือก</option>` : ''}
       </select>
-        ${state.sort === 'distance_to_question' ? `<span class="evt-info-wrap" data-tooltip-html="${escAttr('<div style=&quot;line-height:1.6&quot;><strong>ความเกี่ยวข้องกับประเด็นที่เลือก</strong><div style=&quot;margin-top:6px;font-size:var(--font-size-xs);color:var(--color-text-muted)&quot;>เป็นการเรียงลำดับโดยพิจารณาจากความหมายที่ใกล้เคียงกันระหว่างข้อความในข้อถกเถียงกับชื่อกลุ่มประเด็น โดยใช้โมเดลคณิตศาสตร์ Agglomerative</div></div>')}" style="display:inline-flex;align-items:center;cursor:default"><span style="display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:50%;background:var(--color-border-strong);color:var(--color-text-muted);font-size:10px;font-weight:700;user-select:none;transition:background var(--transition)" onmouseenter="this.style.background='var(--color-accent)';this.style.color='white'" onmouseleave="this.style.background='var(--color-border-strong)';this.style.color='var(--color-text-muted)'">?</span></span>` : ''}
+        ${state.sort === 'distance_to_question' ? `<span class="evt-info-wrap" data-tooltip-html="${escAttr('<div style=&quot;line-height:1.6&quot;><strong>ความเกี่ยวข้องกับประเด็นที่เลือก</strong><div style=&quot;margin-top:6px;font-size:var(--font-size-xs);color:var(--color-text-muted)&quot;>คือ การเรียงข้อถกเถียงจากที่มีความหมายใกล้เคียงกับชื่อกลุ่มประเด็นที่เลือกมากไปน้อย โดยระบบใช้โมเดลคณิตศาสตร์ช่วยวิเคราะห์ความหมายของข้อความ</div><div style=&quot;margin-top:8px;font-size:var(--font-size-xs);color:var(--color-text-muted)&quot;>เช่น หากเลือกกลุ่มประเด็น &lsquo;องค์ประกอบและความหลากหลายของ สสร.&rsquo; ข้อถกเถียงที่กล่าวถึงความหลากหลาย หรือแนวคิดที่มีความหมายใกล้เคียงกัน จะอยู่ในลำดับต้น ๆ</div></div>')}" style="display:inline-flex;align-items:center;cursor:help"><span class="sort-help-icon" style="display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:50%;border:1px solid var(--color-accent);background:var(--color-accent-light);color:var(--color-accent);font-size:10px;font-weight:700;user-select:none;transition:all var(--transition);animation:sortHelpPulse 2s ease-in-out 3" onmouseenter="this.style.background='var(--color-accent)';this.style.color='white';this.style.animation='none'" onmouseleave="this.style.background='var(--color-accent-light)';this.style.color='var(--color-accent)'">?</span></span>` : ''}
       </div>
     </div>
     <div id="topic-legend" style="display:flex;align-items:center;gap:var(--space-3);flex-wrap:wrap;font-size:var(--font-size-xs);color:var(--color-text-muted)">
@@ -1107,7 +1107,9 @@ function openDetail(topicId) {
 
   // Comments
   const topLevelComments = state.commentsByTopic[topicId] || [];
-  document.getElementById('comments-tree').innerHTML = renderCommentTree(topLevelComments, 0);
+  document.getElementById('comments-tree').innerHTML = topLevelComments.length
+    ? renderCommentTree(topLevelComments, 0)
+    : `<div style="padding:var(--space-4) 0;font-size:var(--font-size-sm);color:var(--color-text-subtle)">ยังไม่มีความคิดเห็นเกี่ยวกับข้อถกเถียงนี้</div>`;
 
   document.getElementById('detail-overlay').classList.add('open');
   document.body.style.overflow = 'hidden';
@@ -1313,6 +1315,10 @@ function renderCommentTree(comments, depth) {
     ${contextLabel}
   </div>`;
 
+  const disclaimer = depth === 0
+    ? `<div style="padding:6px 0 var(--space-2);font-size:0.6875rem;color:var(--color-text-subtle);line-height:1.5">หมายเหตุ: จำนวนความคิดเห็น ≠ จำนวนคน หนึ่งคนอาจมีหลายความคิดเห็น และความคิดเห็นที่มีเนื้อหาเหมือนกันอาจถูกรวมเป็นความคิดเห็นเดียว</div>`
+    : '';
+
   // Comment panels — only default visible
   const panels = activeGroups.map(g => {
     const members = sorted.filter(c => (c.comment_view || '') === g.view);
@@ -1320,7 +1326,7 @@ function renderCommentTree(comments, depth) {
     return `<div data-panel="${escAttr(g.view)}" data-tree="${escAttr(treeId)}" style="display:${isDefault ? 'block' : 'none'}">${members.map(c => renderCommentNode(c, depth)).join('')}</div>`;
   }).join('');
 
-  return tabBar + panels;
+  return tabBar + disclaimer + panels;
 }
 
 function renderCommentNode(c, depth) {
